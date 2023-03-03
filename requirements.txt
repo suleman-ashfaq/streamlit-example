@@ -1,3 +1,4 @@
 altair
 pandas
 streamlit
+s3fs==2023.1.0
