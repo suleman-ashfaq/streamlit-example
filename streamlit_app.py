@@ -19,8 +19,7 @@ fs = s3fs.S3FileSystem(anon=False)
 s3 = s3fs.S3FileSystem(anon=False, asynchronous=True)
 bucket_name = os.environ["AWS_S3_BUCKET_NAME"]
 AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
-AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
-pool = ThreadPool(processes=2) 
+AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"] 
 
 def get_size_in_mbs(file_bytes):
     byte = int(file_bytes)
@@ -58,6 +57,7 @@ def upload_api(file_url):
         if r.status_code == 200:
             st.success('done')
             st.write(r.text)
+            fs.rm(get_file_name_from_url(file_url))
         else:
             st.error('statusCode: '+ str(r.status_code) + '\n' + r.text, icon="🚨")
     except Exception as e:
@@ -103,7 +103,7 @@ with upload_tab:
                 data_list.append(data)
                 st.write("Queuing file: " + uploaded_file.name)
 
-            with ThreadPool(20) as pool:
+            with ThreadPool(2) as pool:
                 start = time.time()
                 pool.map(write_to_s3, data_list)
                 pool.close()
